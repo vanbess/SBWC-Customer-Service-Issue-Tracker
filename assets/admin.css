@@ -1,0 +1,40 @@
+.sbwcit_post_meta_cont {
+    width: 50%;
+    float: left;
+}
+
+div#sbwcit_meta_box {
+    overflow: auto;
+}
+
+div#sbwcit_meta_box .inside {
+    overflow: auto;
+    padding: 0 15px 15px;
+}
+
+.sbwcit_post_meta_cont>label {
+    display: block;
+    line-height: 3;
+    font-weight: 600;
+}
+
+.sbwcit_post_meta_cont>input {
+    width: 97%;
+}
+
+span.sbwcir_resolved {
+    background: green;
+    color: white;
+    padding: 5px 15px;
+    font-weight: 600;
+    border-radius: 3px;
+    letter-spacing: 1px;
+}
+
+span.sbwcir_unresolved {
+    background: orange;
+    padding: 5px 15px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
