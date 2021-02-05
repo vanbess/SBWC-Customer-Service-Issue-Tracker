@@ -1,7 +1,7 @@
 <?php
 
 /* Plugin Name: SBWC Order Issue Tracker
-Version: 1.0.0
+Version: 1.0.1
 Author: WC Bessinger
 Description: Multi order issue tracker for WooCommerce
  */
@@ -23,6 +23,7 @@ function sbwcit_load()
 
     // css
     wp_enqueue_style('sbwcit-', SBWCIT_URL . 'assets/admin.css');
+
 }
 
 add_action('plugins_loaded', 'sbwcit_load');

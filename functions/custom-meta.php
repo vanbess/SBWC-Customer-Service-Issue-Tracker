@@ -1,5 +1,25 @@
 <?php
 
+// include gallery img function
+include SBWCIT_PATH . 'functions/gallery.php';
+
+// register pll strings
+if (function_exists('pll_register_string')) :
+    pll_register_string('sbwcit_1', 'Issue date');
+    pll_register_string('sbwcit_2', 'Ticket reference');
+    pll_register_string('sbwcit_3', 'Original order number');
+    pll_register_string('sbwcit_4', 'Replacement order number');
+    pll_register_string('sbwcit_5', 'Replacement reason');
+    pll_register_string('sbwcit_6', 'Refunded amount');
+    pll_register_string('sbwcit_7', 'Issue status');
+    pll_register_string('sbwcit_8', 'Pending');
+    pll_register_string('sbwcit_9', 'Resolved');
+    pll_register_string('sbwcit_10', 'Issue images:');
+    pll_register_string('sbwcit_11', 'Add');
+    pll_register_string('sbwcit_12', 'Remove');
+    pll_register_string('sbwcit_13', 'Select gallery image:');
+endif;
+
 /**
  * Register custom meta fields for issue tracker
  */
@@ -9,7 +29,7 @@ function sbwcit_add_custom_box()
         'sbwcit_meta_box',
         'Issue Tracker Metadata',
         'sbwcit_meta_box_callback',
-        'issue'
+        ['product_issue', 'shipping_issue']
     );
 }
 add_action('add_meta_boxes', 'sbwcit_add_custom_box');
@@ -19,6 +39,7 @@ add_action('add_meta_boxes', 'sbwcit_add_custom_box');
  */
 function sbwcit_meta_box_callback($post)
 {
+    // get post meta
     $post_id = $post->ID;
     $date = get_post_meta($post_id, 'issue_date', true);
     $ticket = get_post_meta($post_id, 'ticket', true);
@@ -26,7 +47,12 @@ function sbwcit_meta_box_callback($post)
     $rep_order_no = get_post_meta($post_id, 'rep_order_no', true);
     $reason = get_post_meta($post_id, 'reason', true);
     $ref_amount = get_post_meta($post_id, 'ref_amt', true);
-    $status = get_post_meta($post_id, 'status', true); ?>
+    $status = get_post_meta($post_id, 'status', true);
+
+    // enqueue js here so that it only runs here, nowhere else
+    wp_enqueue_script('sbwcit-', SBWCIT_URL . 'assets/admin.js');
+
+?>
 
     <!-- date -->
     <div class="sbwcit_post_meta_cont">
@@ -73,54 +99,70 @@ function sbwcit_meta_box_callback($post)
         </select>
     </div>
 
-    <script>
-        $(document).ready(function() {
-            var status = $('#status').attr('current');
-            $('#status').val(status);
-        });
-    </script>
+    <!-- gallery images -->
+    <div class="sbwcit_post_gall_imgs">
+        <?php
+        sbwcit_gallery($post_id);
+        ?>
+    </div>
 
 <?php }
 
-/**
- * Save metadata as needed
- */
-function sbwcit_save_meta($post_id)
+// save post data via ajax (used specifically because saving files are too involved otherwise)
+add_action('wp_ajax_nopriv_sbwcit_save_issue_data', 'sbwcit_save_issue_data');
+add_action('wp_ajax_sbwcit_save_issue_data', 'sbwcit_save_issue_data');
+
+function sbwcit_save_issue_data()
 {
-    // date
-    if (isset($_POST['issue_date'])) :
-        update_post_meta($post_id, 'issue_date', $_POST['issue_date']);
+
+    // required for file uploads
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+
+    // upload overrides
+    $overrides = [
+        'test_form' => false,
+        'test_size' => true,
+        'test_upload' => true
+    ];
+
+    // update post
+    $updated = wp_update_post([
+        'ID' => $_POST['post_ID'],
+        'post_author' => $_POST['post_author'],
+        'post_title' => $_POST['post_title'],
+        'post_status' => 'publish',
+        'post_type' => $_POST['post_type'],
+        'meta_input' => [
+            'issue_date' => $_POST['issue_date'],
+            'ticket' => $_POST['ticket'],
+            'order_no' => $_POST['order_no'],
+            'rep_order_no' => $_POST['rep_order_no'],
+            'reason' => $_POST['reason'],
+            'ref_amt' => $_POST['ref_amt'],
+            'status' => $_POST['status']
+        ]
+    ]);
+
+    // upload files if present
+    if (!empty($_FILES)) :
+
+        $file_count = count($_FILES);
+
+        for ($i = 0; $i < $file_count; $i++) {
+            $file_urls[$i] = wp_handle_sideload($_FILES['sbwcit_gall_img_' . $i], $overrides)['url'];
+        }
+
     endif;
 
-    // ticket link
-    if (isset($_POST['ticket'])) :
-        update_post_meta($post_id, 'ticket', $_POST['ticket']);
+    // add img urls to post if urls present
+    if (!empty($file_urls)) :
+        update_post_meta($_POST['post_ID'], 'issue_gallery', maybe_serialize($file_urls));
     endif;
 
-    // order no
-    if (isset($_POST['order_no'])) :
-        update_post_meta($post_id, 'order_no', $_POST['order_no']);
+    // if updated successfully, return success message
+    if ($updated) :
+        print 'success';
     endif;
 
-    // replacement order no
-    if (isset($_POST['rep_order_no'])) :
-        update_post_meta($post_id, 'rep_order_no', $_POST['rep_order_no']);
-    endif;
-
-    // reason
-    if (isset($_POST['reason'])) :
-        update_post_meta($post_id, 'reason', $_POST['reason']);
-    endif;
-
-    // refund amount
-    if (isset($_POST['ref_amt'])) :
-        update_post_meta($post_id, 'ref_amt', $_POST['ref_amt']);
-    endif;
-
-    // status
-    if (isset($_POST['status'])) :
-        update_post_meta($post_id, 'status', $_POST['status']);
-    endif;
+    wp_die();
 }
-
-add_action('save_post', 'sbwcit_save_meta');
