@@ -22,8 +22,11 @@ function sbwcit_load()
     require_once SBWCIT_PATH . 'functions/custom-meta.php';
 
     // css
-    wp_enqueue_style('sbwcit-', SBWCIT_URL . 'assets/admin.css');
-
+    add_action('wp_enqueue_scripts', 'sbwcit_scripts');
+    function sbwcit_scripts()
+    {
+        wp_enqueue_style('sbwcit-', SBWCIT_URL . 'assets/admin.css');
+    }
 }
 
 add_action('plugins_loaded', 'sbwcit_load');
