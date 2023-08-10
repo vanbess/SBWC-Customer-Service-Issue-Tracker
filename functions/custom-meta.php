@@ -40,129 +40,279 @@ add_action('add_meta_boxes', 'sbwcit_add_custom_box');
 function sbwcit_meta_box_callback($post)
 {
     // get post meta
-    $post_id = $post->ID;
-    $date = get_post_meta($post_id, 'issue_date', true);
-    $ticket = get_post_meta($post_id, 'ticket', true);
-    $order_no = get_post_meta($post_id, 'order_no', true);
+    $post_id      = $post->ID;
+    $date         = get_post_meta($post_id, 'issue_date', true);
+    $ticket       = get_post_meta($post_id, 'ticket', true);
+    $order_no     = get_post_meta($post_id, 'order_no', true);
     $rep_order_no = get_post_meta($post_id, 'rep_order_no', true);
-    $reason = get_post_meta($post_id, 'reason', true);
-    $ref_amount = get_post_meta($post_id, 'ref_amt', true);
-    $status = get_post_meta($post_id, 'status', true);
-
-    // enqueue js here so that it only runs here, nowhere else
-    wp_enqueue_script('sbwcit-', SBWCIT_URL . 'assets/admin.js');
+    $reason       = get_post_meta($post_id, 'reason', true);
+    $ref_amount   = get_post_meta($post_id, 'ref_amt', true);
+    $status       = get_post_meta($post_id, 'status', true);
+    $product      = get_post_meta($post_id, 'product', true);
+    $sku          = get_post_meta($post_id, 'sku', true);
+    $comments     = get_post_meta($post_id, 'comments', true);
 
 ?>
 
     <!-- date -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="issue_date"><?php pll_e('Issue date') ?></label>
-        <input type="date" name="issue_date" id="issue_date" value="<?php echo $date; ?>">
-    </div>
+    <p class="sbwcit_post_meta_cont">
+        <label for="issue_date"><?php function_exists('pll_e') ? pll_e('Issue date:') : _e('Issue date:') ?></label>
+        <input type="date" name="issue_date" id="issue_date" value="<?php echo $date ? $date : date('Y-m-d'); ?>">
+    </p>
 
     <!-- ticket -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="ticket"><?php pll_e('Ticket reference') ?></label>
-        <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" required>
-    </div>
+    <p class="sbwcit_post_meta_cont">
+        <label for="ticket"><?php function_exists('pll_e') ? pll_e('Ticket reference:') : _e('Ticket reference:') ?></label>
+        <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" placeholder="<?php function_exists('pll_e') ? pll_e('ticket reference URL') : _e('ticket reference URL') ?>">
+    </p>
 
     <!-- original order number -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="order_no"><?php pll_e('Original order number') ?></label>
-        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required>
-    </div>
+    <p class="sbwcit_post_meta_cont">
+        <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:') : _e('Original order number:') ?></label>
+        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>">
+    </p>
 
     <!-- replacement order number -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="rep_order_no"><?php pll_e('Replacement order number') ?></label>
+    <p class="sbwcit_post_meta_cont">
+        <label for="rep_order_no"><?php function_exists('pll_e') ? pll_e('Replacement order number:') : _e('Replacement order number:') ?></label>
         <input type="text" name="rep_order_no" id="rep_order_no" value="<?php echo $rep_order_no ?>">
-    </div>
+    </p>
+
+    <!-- product -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="product"><?php function_exists('pll_e') ? pll_e('Product:') : _e('Product:') ?></label>
+        <input type="text" name="product" id="product" value="<?php echo $product ?>">
+    </p>
+
+    <!-- SKU -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="sku"><?php function_exists('pll_e') ? pll_e('SKU:') : _e('SKU:') ?></label>
+        <input type="text" name="sku" id="sku" value="<?php echo $sku ?>">
+    </p>
+
+    <!-- comments -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="comments"><?php function_exists('pll_e') ? pll_e('Additional Comments:') : _e('Additional Comments:') ?></label>
+        <textarea name="comments" id="comments" cols="66" rows="10"><?php echo $comments ?></textarea>
+    </p>
 
     <!-- replacement reason -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="reason"><?php pll_e('Replacement reason') ?></label>
-        <input type="text" name="reason" id="reason" value="<?php echo $reason ?>" required>
-    </div>
+    <p class="sbwcit_post_meta_cont">
+        <label for="reason"><?php function_exists('pll_e') ? pll_e('Replacement reason:') : _e('Replacement reason:') ?></label>
+        <input type="text" name="reason" id="reason" value="<?php echo $reason ?>">
+    </p>
 
     <!-- refund amount -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="ref_amt"><?php pll_e('Refunded amount') ?></label>
-        <input type="text" name="ref_amt" id="ref_amt" value="<?php echo $ref_amount ?>" required>
-    </div>
+    <p class="sbwcit_post_meta_cont">
+        <label for="ref_amt"><?php function_exists('pll_e') ? pll_e('Refunded amount:') : _e('Refunded amount:') ?></label>
+        <input type="text" name="ref_amt" id="ref_amt" value="<?php echo $ref_amount ?>">
+    </p>
 
     <!-- status -->
-    <div class="sbwcit_post_meta_cont">
-        <label for="status"><?php pll_e('Issue status') ?></label>
+    <p class="sbwcit_post_meta_cont">
+        <label for="status"><?php function_exists('pll_e') ? pll_e('Issue status:') : _e('Issue status:') ?></label>
         <select name="status" id="status" current="<?php echo $status; ?>">
-            <option value="pending"><?php pll_e('Pending') ?></option>
-            <option value="resolved"><?php pll_e('Resolved') ?></option>
+            <option value="pending"><?php function_exists('pll_e') ? pll_e('Pending') : _e('Pending') ?></option>
+            <option value="resolved"><?php function_exists('pll_e') ? pll_e('Resolved') : _e('Resolved') ?></option>
         </select>
-    </div>
+    </p>
+
+    <!-- nonce -->
+    <?php wp_nonce_field('sbwcit_meta_box', 'sbwcit_meta_box_nonce'); ?>
+
+    <hr>
 
     <!-- gallery images -->
-    <div class="sbwcit_post_gall_imgs">
+    <p class="sbwcit_post_gall_imgs">
         <?php
         sbwcit_gallery($post_id);
         ?>
-    </div>
+    </p>
+
+    <!-- css -->
+    <style>
+        .sbwcit_post_meta_cont>label,
+        .sbwcit-img-input>label {
+            min-width: 220px;
+            display: inline-block;
+            font-weight: 600;
+            font-style: italic;
+            vertical-align: top;
+        }
+
+        p.sbwcit_post_meta_cont>input,
+        p.sbwcit_post_meta_cont>select {
+            min-width: 450px;
+        }
+
+        .sbwcit-btns {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 30px;
+        }
+
+        .sbwcit-img-input {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .sbwcit-add-gall-img.col-20 {
+            width: 23%;
+            display: inline-block;
+            padding: 10px;
+            vertical-align: middle;
+        }
+
+        .sbwcit-add-gall-img.col-20 img {
+            border: 2px solid #ddd;
+        }
+    </style>
+
+    <!-- js -->
+    <script>
+        window.onload = function() {
+
+            $ = jQuery;
+
+            // add image on click
+            $(document).on('click', '.sbwcit-add-img', function(e) {
+                e.preventDefault();
+                var to_add = $(document).find('.sbwcit-add-gall-img').html();
+                $('#sbwcit-gallery-cont').append(to_add);
+            });
+
+            // rem image on click
+            $(document).on('click', '.sbwcit-rem-img', function(e) {
+                e.preventDefault();
+                $(this).parents('.sbwcit-add-rem-img').remove();
+            });
+
+            // add file upload support to form #post
+            $('#post').attr('enctype', 'multipart/form-data');
+
+        }
+    </script>
 
 <?php }
 
-// save post data via ajax (used specifically because saving files are too involved otherwise)
-add_action('wp_ajax_nopriv_sbwcit_save_issue_data', 'sbwcit_save_issue_data');
-add_action('wp_ajax_sbwcit_save_issue_data', 'sbwcit_save_issue_data');
+// hook save post meta
+add_action('save_post', 'sbwcit_save_post_meta');
 
-function sbwcit_save_issue_data()
+// save custom meta fields
+function sbwcit_save_post_meta($post_id)
 {
 
-    // required for file uploads
-    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    // bail if not product_issue post type
+    if (get_post_type($post_id) != 'product_issue') {
+        return;
+    }
 
-    // upload overrides
-    $overrides = [
-        'test_form' => false,
-        'test_size' => true,
-        'test_upload' => true
-    ];
+    // check if nonce is set
+    if (!isset($_POST['sbwcit_meta_box_nonce'])) {
+        return;
+    }
 
-    // update post
-    $updated = wp_update_post([
-        'ID' => $_POST['post_ID'],
-        'post_author' => $_POST['post_author'],
-        'post_title' => $_POST['post_title'],
-        'post_status' => 'publish',
-        'post_type' => $_POST['post_type'],
-        'meta_input' => [
-            'issue_date' => $_POST['issue_date'],
-            'ticket' => $_POST['ticket'],
-            'order_no' => $_POST['order_no'],
-            'rep_order_no' => $_POST['rep_order_no'],
-            'reason' => $_POST['reason'],
-            'ref_amt' => $_POST['ref_amt'],
-            'status' => $_POST['status']
-        ]
-    ]);
+    // verify nonce
+    if (!wp_verify_nonce($_POST['sbwcit_meta_box_nonce'], 'sbwcit_meta_box')) {
+        return;
+    }
 
-    // upload files if present
-    if (!empty($_FILES)) :
+    // check if autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
 
-        $file_count = count($_FILES);
+    // check if user has permissions
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
 
-        for ($i = 0; $i < $file_count; $i++) {
-            $file_urls[$i] = wp_handle_sideload($_FILES['sbwcit_gall_img_' . $i], $overrides)['url'];
+    // save date
+    if (isset($_POST['issue_date'])) {
+        update_post_meta($post_id, 'issue_date', sanitize_text_field($_POST['issue_date']));
+    }
+
+    // save ticket
+    if (isset($_POST['ticket'])) {
+        update_post_meta($post_id, 'ticket', sanitize_text_field($_POST['ticket']));
+    }
+
+    // save order number
+    if (isset($_POST['order_no'])) {
+        update_post_meta($post_id, 'order_no', sanitize_text_field($_POST['order_no']));
+    }
+
+    // save replacement order number
+    if (isset($_POST['rep_order_no'])) {
+        update_post_meta($post_id, 'rep_order_no', sanitize_text_field($_POST['rep_order_no']));
+    }
+
+    // save product name
+    if (isset($_POST['product'])) {
+        update_post_meta($post_id, 'product', sanitize_text_field($_POST['product']));
+    }
+
+    // save product sku
+    if (isset($_POST['sku'])) {
+        update_post_meta($post_id, 'sku', sanitize_text_field($_POST['sku']));
+    }
+
+    // save additional comments
+    if (isset($_POST['comments'])) {
+        update_post_meta($post_id, 'comments', sanitize_textarea_field($_POST['comments']));
+    }
+
+    // save replacement reason
+    if (isset($_POST['reason'])) {
+        update_post_meta($post_id, 'reason', sanitize_text_field($_POST['reason']));
+    }
+
+    // save refund amount
+    if (isset($_POST['ref_amt'])) {
+        update_post_meta($post_id, 'ref_amt', sanitize_text_field($_POST['ref_amt']));
+    }
+
+    // save status
+    if (isset($_POST['status'])) {
+        update_post_meta($post_id, 'status', sanitize_text_field($_POST['status']));
+    }
+
+    // save gallery images
+    if (isset($_FILES['sbwcit_gall_imgs'])) {
+
+        // init images array
+        $images = [];
+
+        // loop through images
+        foreach ($_FILES['sbwcit_gall_imgs']['name'] as $key => $value) {
+
+            // if files exist
+            if ($_FILES['sbwcit_gall_imgs']['size'][$key]) {
+
+                // init file array
+                $file = [
+                    'name'     => $_FILES['sbwcit_gall_imgs']['name'][$key],
+                    'type'     => $_FILES['sbwcit_gall_imgs']['type'][$key],
+                    'tmp_name' => $_FILES['sbwcit_gall_imgs']['tmp_name'][$key],
+                    'error'    => $_FILES['sbwcit_gall_imgs']['error'][$key],
+                    'size'     => $_FILES['sbwcit_gall_imgs']['size'][$key]
+                ];
+
+                // upload file
+                $upload = wp_handle_upload($file, ['test_form' => false]);
+
+                // if upload successful
+                if (!isset($upload['error']) && isset($upload['file'])) {
+                    $images[] = $upload['url'];
+
+                    // if upload failed
+                } else {
+                    wp_die('There was an error uploading your file. The error is: ' . $upload['error']);
+                }
+            }
         }
 
-    endif;
-
-    // add img urls to post if urls present
-    if (!empty($file_urls)) :
-        update_post_meta($_POST['post_ID'], 'issue_gallery', maybe_serialize($file_urls));
-    endif;
-
-    // if updated successfully, return success message
-    if ($updated) :
-        print 'success';
-    endif;
-
-    wp_die();
+        // update post meta
+        update_post_meta($post_id, 'issue_gallery', $images);
+    }
 }

@@ -14,7 +14,7 @@ function sbwcit_gallery($post_id)
 
         <div id="sbwcit-gallery-cont">
 
-            <h4><?php pll_e('Issue images:') ?></h4>
+            <h4 style="font-style: italic;"><?php function_exists('pll_e') ? pll_e('Issue images:') : _e('Issue images:') ?></h4>
 
             <?php foreach ($issue_gallery as $img_url) : ?>
 
@@ -34,23 +34,30 @@ function sbwcit_gallery($post_id)
 
         <div id="sbwcit-gallery-cont">
 
-            <h4><?php pll_e('Issue images:') ?></h4>
+            <h4 style="font-style: italic; text-transform: uppercase; text-decoration: underline;"><?php function_exists('pll_e') ? pll_e('Issue images:') : _e('Issue images:') ?></h4>
 
-            <div class="sbwcit-add-gall-img col-20">
+            <div class="sbwcit-add-gall-img">
 
                 <!-- add/remove image -->
                 <div class="sbwcit-add-rem-img">
-                    <span class="sbwcit-add-img" title="<?php pll_e('Add') ?>">+</span>
-                    <span class="sbwcit-rem-img rem-input" title="<?php pll_e('Remove') ?>">-</span>
-                </div>
 
-                <label for="sbwcit_gall_imgs"><?php pll_e('Select gallery image:') ?></label>
-                <input type="file" name="sbwcit_gall_imgs[]" id="sbwcit_gall_imgs_1" class="sbwcit_gall_imgs">
+                    <!-- img input -->
+                    <div class="sbwcit-img-input">
+                        <label for="sbwcit_gall_imgs" style="min-width: 140px;"><?php function_exists('pll_e') ? pll_e('Select gallery image:') : _e('Select gallery image:') ?></label>
+                        <input type="file" name="sbwcit_gall_imgs[]" class="sbwcit_gall_imgs">
+                    </div>
+
+                    <!-- buttons -->
+                    <div class="sbwcit-btns">
+                        <button class="sbwcit-add-img button button-primary button-small" title="<?php function_exists('pll_e') ? pll_e('Add') : _e('Add') ?>">+</button>
+                        <button class="sbwcit-rem-img rem-input button button-secondary button-small" title="<?php function_exists('pll_e') ? pll_e('Remove') : _e('Remove') ?>">-</button>
+                    </div>
+
+                </div>
 
             </div><!-- end .sbwcit-add-gall-img -->
         </div><!-- end #sbwcit-gallery-cont -->
 
 <?php endif;
 }
-
 ?>
