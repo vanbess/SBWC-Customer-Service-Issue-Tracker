@@ -40,17 +40,19 @@ add_action('add_meta_boxes', 'sbwcit_add_custom_box');
 function sbwcit_meta_box_callback($post)
 {
     // get post meta
-    $post_id      = $post->ID;
-    $date         = get_post_meta($post_id, 'issue_date', true);
-    $ticket       = get_post_meta($post_id, 'ticket', true);
-    $order_no     = get_post_meta($post_id, 'order_no', true);
-    $rep_order_no = get_post_meta($post_id, 'rep_order_no', true);
-    $reason       = get_post_meta($post_id, 'reason', true);
-    $ref_amount   = get_post_meta($post_id, 'ref_amt', true);
-    $status       = get_post_meta($post_id, 'status', true);
-    $product      = get_post_meta($post_id, 'product', true);
-    $sku          = get_post_meta($post_id, 'sku', true);
-    $comments     = get_post_meta($post_id, 'comments', true);
+    $post_id          = $post->ID;
+    $date             = get_post_meta($post_id, 'issue_date', true);
+    $ticket           = get_post_meta($post_id, 'ticket', true);
+    $order_no         = get_post_meta($post_id, 'order_no', true);
+    $rep_order_no     = get_post_meta($post_id, 'rep_order_no', true);
+    $reason           = get_post_meta($post_id, 'reason', true);
+    $ref_amount       = get_post_meta($post_id, 'ref_amt', true);
+    $status           = get_post_meta($post_id, 'status', true);
+    $product          = get_post_meta($post_id, 'product', true);
+    $sku              = get_post_meta($post_id, 'sku', true);
+    $comments         = get_post_meta($post_id, 'comments', true);
+    $issue_type       = get_post_meta($post_id, 'issue_type', true);
+    $issue_type_other = get_post_meta($post_id, 'issue_type_other', true);
 
 ?>
 
@@ -63,13 +65,13 @@ function sbwcit_meta_box_callback($post)
     <!-- ticket -->
     <p class="sbwcit_post_meta_cont">
         <label for="ticket"><?php function_exists('pll_e') ? pll_e('Ticket reference:') : _e('Ticket reference:') ?></label>
-        <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" placeholder="<?php function_exists('pll_e') ? pll_e('ticket reference URL') : _e('ticket reference URL') ?>">
+        <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" placeholder="<?php function_exists('pll_e') ? pll_e('ticket reference URL') : _e('ticket reference URL') ?>" required>
     </p>
 
     <!-- original order number -->
     <p class="sbwcit_post_meta_cont">
         <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:') : _e('Original order number:') ?></label>
-        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>">
+        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required>
     </p>
 
     <!-- replacement order number -->
@@ -81,19 +83,42 @@ function sbwcit_meta_box_callback($post)
     <!-- product -->
     <p class="sbwcit_post_meta_cont">
         <label for="product"><?php function_exists('pll_e') ? pll_e('Product:') : _e('Product:') ?></label>
-        <input type="text" name="product" id="product" value="<?php echo $product ?>">
+        <input type="text" name="product" id="product" value="<?php echo $product ?>" required>
     </p>
 
     <!-- SKU -->
     <p class="sbwcit_post_meta_cont">
         <label for="sku"><?php function_exists('pll_e') ? pll_e('SKU:') : _e('SKU:') ?></label>
-        <input type="text" name="sku" id="sku" value="<?php echo $sku ?>">
+        <input type="text" name="sku" id="sku" value="<?php echo $sku ?>" required>
     </p>
 
     <!-- comments -->
     <p class="sbwcit_post_meta_cont">
         <label for="comments"><?php function_exists('pll_e') ? pll_e('Additional Comments:') : _e('Additional Comments:') ?></label>
         <textarea name="comments" id="comments" cols="66" rows="10"><?php echo $comments ?></textarea>
+    </p>
+
+    <!-- issue type -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="issue_type"><?php function_exists('pll_e') ? pll_e('Issue Type:') : _e('Issue Type:') ?></label>
+        <select name="issue_type" id="issue_type" onchange="checkIssueVal()" required>
+            <option value=""><?php function_exists('pll_e') ? pll_e('Please Select...') : _e('Please Select...') ?></option>
+            <option <?php echo $issue_type == 'damaged_receipt' ? 'selected' : ''; ?> value="damaged_receipt"><?php function_exists('pll_e') ? pll_e('Damaged Upon Receipt') : _e('Damaged Upon Receipt') ?></option>
+            <option <?php echo $issue_type == 'defect_exterior' ? 'selected' : ''; ?> value="defect_exterior"><?php function_exists('pll_e') ? pll_e('Material Defect (Exterior)') : _e('Material Defect (Exterior)') ?></option>
+            <option <?php echo $issue_type == 'defect_interior' ? 'selected' : ''; ?> value="defect_interior"><?php function_exists('pll_e') ? pll_e('Material Defect (Interior)') : _e('Material Defect (Interior)') ?></option>
+            <option <?php echo $issue_type == 'zipper_defect' ? 'selected' : ''; ?> value="zipper_defect"><?php function_exists('pll_e') ? pll_e('Zipper Defect') : _e('Zipper Defect') ?></option>
+            <option <?php echo $issue_type == 'strap_defect' ? 'selected' : ''; ?> value="strap_defect"><?php function_exists('pll_e') ? pll_e('Strap Defect') : _e('Strap Defect') ?></option>
+            <option <?php echo $issue_type == 'handle_defect' ? 'selected' : ''; ?> value="handle_defect"><?php function_exists('pll_e') ? pll_e('Handle Structure Defect') : _e('Handle Structure Defect') ?></option>
+            <option <?php echo $issue_type == 'manufacturing_defect' ? 'selected' : ''; ?> value="manufacturing_defect"><?php function_exists('pll_e') ? pll_e('Manufacturing Defect (Upside down logo, asymmetrical sewing, etc.') : _e('Manufacturing Defect (Upside down logo, asymmetrical sewing, etc.') ?></option>
+            <option <?php echo $issue_type == 'charging_defect' ? 'selected' : ''; ?> value="charging_defect"><?php function_exists('pll_e') ? pll_e('Charging Unit Faulty') : _e('Charging Unit Faulty') ?></option>
+            <option <?php echo $issue_type == 'other_defect' ? 'selected' : ''; ?> value="other_defect"><?php function_exists('pll_e') ? pll_e('Other') : _e('Other') ?></option>
+        </select>
+    </p>
+
+    <!-- issue type other textarea -->
+    <p class="sbwcit_post_meta_cont" style="display: none;">
+        <label for="issue_type_other"><?php function_exists('pll_e') ? pll_e('Other Issue:') : _e('Other Issue:') ?></label>
+        <textarea name="issue_type_other" id="issue_type_other" cols="66" rows="10" placeholder="<?php function_exists('pll_e') ? pll_e('Please provide more info') : _e('Please provide more info') ?>"><?php echo $issue_type_other ?></textarea>
     </p>
 
     <!-- replacement reason -->
@@ -170,9 +195,24 @@ function sbwcit_meta_box_callback($post)
 
     <!-- js -->
     <script>
-        window.onload = function() {
+        $ = jQuery;
 
-            $ = jQuery;
+        // check issue val
+        function checkIssueVal() {
+
+            var issueVal = $('#issue_type').val();
+
+            if (issueVal == 'other_defect') {
+                $('#issue_type_other').parent().show();
+            } else {
+                $('#issue_type_other').parent().hide();
+            }
+        } 
+        
+        window.onload = function() {
+            
+            // if issue type is other, show textarea
+            checkIssueVal();
 
             // add image on click
             $(document).on('click', '.sbwcit-add-img', function(e) {
@@ -260,6 +300,16 @@ function sbwcit_save_post_meta($post_id)
     // save additional comments
     if (isset($_POST['comments'])) {
         update_post_meta($post_id, 'comments', sanitize_textarea_field($_POST['comments']));
+    }
+
+    // save issue type
+    if (isset($_POST['issue_type'])) {
+        update_post_meta($post_id, 'issue_type', sanitize_text_field($_POST['issue_type']));
+    }
+
+    // save issue type other
+    if (isset($_POST['issue_type_other'])) {
+        update_post_meta($post_id, 'issue_type_other', sanitize_textarea_field($_POST['issue_type_other']));
     }
 
     // save replacement reason
