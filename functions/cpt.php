@@ -321,31 +321,6 @@ function product_issue_sortable_columns($columns)
 add_filter('manage_edit-product_issue_sortable_columns', 'product_issue_sortable_columns');
 add_filter('manage_edit-shipping_issue_sortable_columns', 'product_issue_sortable_columns');
 
-// Custom query for sorting
-// add_action('pre_get_posts', function($query) {
-
-//     if (!is_admin() || !$query->is_main_query()) {
-//         return;
-//     }
-
-//     $orderby = $query->get('orderby');
-
-//     if ('severity' == $orderby) {
-//         // Retrieve the current ordering direction
-//         $current_order = strtoupper($query->get('order')) == 'ASC' ? 'ASC' : 'DESC';
-
-//         // Set the meta key for ordering
-//         $query->set('meta_key', 'severity');
-
-//         // Set the orderby to meta_value
-//         $query->set('orderby', 'meta_value');
-
-//         // Set the order to the opposite of the current order
-//         $query->set('order', $current_order == 'ASC' ? 'DESC' : 'ASC');
-
-//     }
-// });
-
 /**
  * Sort by severity
  */
