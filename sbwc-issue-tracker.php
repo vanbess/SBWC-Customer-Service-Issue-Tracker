@@ -13,14 +13,10 @@ endif;
 define('SBWCIT_PATH', plugin_dir_path(__FILE__));
 define('SBWCIT_URL', plugin_dir_url(__FILE__));
 
-function sbwcit_load()
-{
+add_action('plugins_loaded', function () {
     // cpt
     require_once SBWCIT_PATH . 'functions/cpt.php';
 
     // cpt meta
     require_once SBWCIT_PATH . 'functions/custom-meta.php';
-
-}
-
-add_action('plugins_loaded', 'sbwcit_load');
+});
