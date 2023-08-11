@@ -64,13 +64,13 @@ function sbwcit_meta_box_callback($post)
 
     <!-- ticket -->
     <p class="sbwcit_post_meta_cont">
-        <label for="ticket"><?php function_exists('pll_e') ? pll_e('Ticket reference:') : _e('Ticket reference:') ?></label>
+        <label for="ticket"><?php function_exists('pll_e') ? pll_e('Ticket reference:*') : _e('Ticket reference:*') ?></label>
         <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" placeholder="<?php function_exists('pll_e') ? pll_e('ticket reference URL') : _e('ticket reference URL') ?>" required>
     </p>
 
     <!-- original order number -->
     <p class="sbwcit_post_meta_cont">
-        <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:') : _e('Original order number:') ?></label>
+        <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:*') : _e('Original order number:*') ?></label>
         <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required>
     </p>
 
@@ -82,13 +82,13 @@ function sbwcit_meta_box_callback($post)
 
     <!-- product -->
     <p class="sbwcit_post_meta_cont">
-        <label for="product"><?php function_exists('pll_e') ? pll_e('Product:') : _e('Product:') ?></label>
+        <label for="product"><?php function_exists('pll_e') ? pll_e('Product:*') : _e('Product:*') ?></label>
         <input type="text" name="product" id="product" value="<?php echo $product ?>" required>
     </p>
 
     <!-- SKU -->
     <p class="sbwcit_post_meta_cont">
-        <label for="sku"><?php function_exists('pll_e') ? pll_e('SKU:') : _e('SKU:') ?></label>
+        <label for="sku"><?php function_exists('pll_e') ? pll_e('SKU:*') : _e('SKU:*') ?></label>
         <input type="text" name="sku" id="sku" value="<?php echo $sku ?>" required>
     </p>
 
@@ -100,7 +100,7 @@ function sbwcit_meta_box_callback($post)
 
     <!-- issue type -->
     <p class="sbwcit_post_meta_cont">
-        <label for="issue_type"><?php function_exists('pll_e') ? pll_e('Issue Type:') : _e('Issue Type:') ?></label>
+        <label for="issue_type"><?php function_exists('pll_e') ? pll_e('Issue Type:*') : _e('Issue Type:*') ?></label>
         <select name="issue_type" id="issue_type" onchange="checkIssueVal()" required>
             <option value=""><?php function_exists('pll_e') ? pll_e('Please Select...') : _e('Please Select...') ?></option>
             <option <?php echo $issue_type == 'damaged_receipt' ? 'selected' : ''; ?> value="damaged_receipt"><?php function_exists('pll_e') ? pll_e('Damaged Upon Receipt') : _e('Damaged Upon Receipt') ?></option>
@@ -117,7 +117,7 @@ function sbwcit_meta_box_callback($post)
 
     <!-- issue type other textarea -->
     <p class="sbwcit_post_meta_cont" style="display: none;">
-        <label for="issue_type_other"><?php function_exists('pll_e') ? pll_e('Other Issue:') : _e('Other Issue:') ?></label>
+        <label for="issue_type_other"><?php function_exists('pll_e') ? pll_e('Other Issue:*') : _e('Other Issue:*') ?></label>
         <textarea name="issue_type_other" id="issue_type_other" cols="66" rows="10" placeholder="<?php function_exists('pll_e') ? pll_e('Please provide more info') : _e('Please provide more info') ?>"><?php echo $issue_type_other ?></textarea>
     </p>
 
@@ -203,9 +203,17 @@ function sbwcit_meta_box_callback($post)
             var issueVal = $('#issue_type').val();
 
             if (issueVal == 'other_defect') {
+
                 $('#issue_type_other').parent().show();
+
+                // add required attr
+                $('#issue_type_other').attr('required', true);
             } else {
+
                 $('#issue_type_other').parent().hide();
+
+                // remove required attr
+                $('#issue_type_other').removeAttr('required');
             }
         } 
         
