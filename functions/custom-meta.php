@@ -53,6 +53,7 @@ function sbwcit_meta_box_callback($post)
     $comments         = get_post_meta($post_id, 'comments', true);
     $issue_type       = get_post_meta($post_id, 'issue_type', true);
     $issue_type_other = get_post_meta($post_id, 'issue_type_other', true);
+    $severity         = get_post_meta($post_id, 'severity', true);
 
 ?>
 
@@ -66,6 +67,17 @@ function sbwcit_meta_box_callback($post)
     <p class="sbwcit_post_meta_cont">
         <label for="ticket"><?php function_exists('pll_e') ? pll_e('Ticket reference:*') : _e('Ticket reference:*') ?></label>
         <input type="url" name="ticket" id="ticket" value="<?php echo $ticket ?>" placeholder="<?php function_exists('pll_e') ? pll_e('ticket reference URL') : _e('ticket reference URL') ?>" required>
+    </p>
+
+    <!-- ticket severity (low, medium or high) -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="severity"><?php function_exists('pll_e') ? pll_e('Ticket severity:*') : _e('Ticket severity:*') ?></label>
+        <select name="severity" id="severity" required>
+            <option value=""><?php function_exists('pll_e') ? pll_e('Please Select...') : _e('Please Select...') ?></option>
+            <option <?php echo $severity == 'low' ? 'selected' : ''; ?> value="low"><?php function_exists('pll_e') ? pll_e('Low') : _e('Low') ?></option>
+            <option <?php echo $severity == 'medium' ? 'selected' : ''; ?> value="medium"><?php function_exists('pll_e') ? pll_e('Medium') : _e('Medium') ?></option>
+            <option <?php echo $severity == 'high' ? 'selected' : ''; ?> value="high"><?php function_exists('pll_e') ? pll_e('High') : _e('High') ?></option>
+        </select>
     </p>
 
     <!-- original order number -->
@@ -283,6 +295,11 @@ function sbwcit_save_post_meta($post_id)
     // save ticket
     if (isset($_POST['ticket'])) {
         update_post_meta($post_id, 'ticket', sanitize_text_field($_POST['ticket']));
+    }
+
+    // save severity
+    if (isset($_POST['severity'])) {
+        update_post_meta($post_id, 'severity', sanitize_text_field($_POST['severity']));
     }
 
     // save order number
