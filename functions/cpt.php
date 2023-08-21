@@ -169,6 +169,7 @@ function cs_issues_custom_cols($columns)
 	$columns['ticket']       = __('Ticket URL', 'default');
 	$columns['severity']     = __('Severity', 'default');
 	$columns['order_no']     = __('Order No', 'default');
+	$columns['order_date']   = __('Order Date', 'default');
 	$columns['rep_order_no'] = __('Repl. Order No', 'default');
 	$columns['ref_amt']      = __('Ref. Amount', 'default');
 	$columns['status']       = __('Status', 'default');
@@ -193,7 +194,7 @@ function product_issue_custom_column_values($column, $post_id)
 			break;
 
 		case 'manufacturer':
-			echo get_post_meta($post_id, $column, true) ? '<b>'.get_post_meta($post_id, $column, true) . '</b><br>' : '-';
+			echo get_post_meta($post_id, $column, true) ? '<b>' . get_post_meta($post_id, $column, true) . '</b><br>' : '-';
 			echo get_post_meta($post_id, 'manufacture_date', true) ? __('<b>MFG Date:</b> ', 'default') . get_post_meta($post_id, 'manufacture_date', true) . '<br>' : '-';
 			break;
 
@@ -266,8 +267,12 @@ function product_issue_custom_column_values($column, $post_id)
 			echo get_post_meta($post_id, $column, true);
 			break;
 
+		case 'order_date':
+			echo get_post_meta($post_id, $column, true) ? get_post_meta($post_id, $column, true) : '-';
+			break;
+
 		case 'rep_order_no':
-			echo get_post_meta($post_id, $column, true);
+			echo get_post_meta($post_id, $column, true) ? get_post_meta($post_id, $column, true) : '-';
 			break;
 
 		case 'ref_amt':

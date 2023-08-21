@@ -56,6 +56,7 @@ function sbwcit_meta_box_callback($post)
     $severity         = get_post_meta($post_id, 'severity', true);
     $manufacturer     = get_post_meta($post_id, 'manufacturer', true);
     $manufacture_date = get_post_meta($post_id, 'manufacture_date', true);
+    $order_date       = get_post_meta($post_id, 'order_date', true);
 
 ?>
 
@@ -86,6 +87,12 @@ function sbwcit_meta_box_callback($post)
     <p class="sbwcit_post_meta_cont">
         <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:*') : _e('Original order number:*') ?></label>
         <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required>
+    </p>
+
+    <!-- order date -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="order_date"><?php function_exists('pll_e') ? pll_e('Order date:') : _e('Order date:') ?></label>
+        <input type="date" name="order_date" id="order_date" value="<?php echo $order_date ?>">
     </p>
 
     <!-- replacement order number -->
@@ -314,6 +321,11 @@ function sbwcit_save_post_meta($post_id)
     // save severity
     if (isset($_POST['severity'])) {
         update_post_meta($post_id, 'severity', sanitize_text_field($_POST['severity']));
+    }
+
+    // save order date
+    if (isset($_POST['order_date'])) {
+        update_post_meta($post_id, 'order_date', sanitize_text_field($_POST['order_date']));
     }
 
     // save manufacturer
