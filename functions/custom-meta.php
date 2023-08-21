@@ -54,6 +54,8 @@ function sbwcit_meta_box_callback($post)
     $issue_type       = get_post_meta($post_id, 'issue_type', true);
     $issue_type_other = get_post_meta($post_id, 'issue_type_other', true);
     $severity         = get_post_meta($post_id, 'severity', true);
+    $manufacturer     = get_post_meta($post_id, 'manufacturer', true);
+    $manufacture_date = get_post_meta($post_id, 'manufacture_date', true);
 
 ?>
 
@@ -131,6 +133,18 @@ function sbwcit_meta_box_callback($post)
     <p class="sbwcit_post_meta_cont" style="display: none;">
         <label for="issue_type_other"><?php function_exists('pll_e') ? pll_e('Other Issue:*') : _e('Other Issue:*') ?></label>
         <textarea name="issue_type_other" id="issue_type_other" cols="66" rows="10" placeholder="<?php function_exists('pll_e') ? pll_e('Please provide more info') : _e('Please provide more info') ?>"><?php echo $issue_type_other ?></textarea>
+    </p>
+
+    <!-- manufacturer -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="manufacturer"><?php function_exists('pll_e') ? pll_e('Manufacturer:') : _e('Manufacturer:') ?></label>
+        <input type="text" name="manufacturer" id="manufacturer" value="<?php echo $manufacturer ?>">
+    </p>
+
+    <!-- manufacture date -->
+    <p class="sbwcit_post_meta_cont">
+        <label for="manufacture_date"><?php function_exists('pll_e') ? pll_e('Manufacture Date:') : _e('Manufacture Date:') ?></label>
+        <input type="date" name="manufacture_date" id="manufacture_date" value="<?php echo $manufacture_date ?>">
     </p>
 
     <!-- replacement reason -->
@@ -300,6 +314,16 @@ function sbwcit_save_post_meta($post_id)
     // save severity
     if (isset($_POST['severity'])) {
         update_post_meta($post_id, 'severity', sanitize_text_field($_POST['severity']));
+    }
+
+    // save manufacturer
+    if (isset($_POST['manufacturer'])) {
+        update_post_meta($post_id, 'manufacturer', sanitize_text_field($_POST['manufacturer']));
+    }
+
+    // save manufacture date
+    if (isset($_POST['manufacture_date'])) {
+        update_post_meta($post_id, 'manufacture_date', sanitize_text_field($_POST['manufacture_date']));
     }
 
     // save order number

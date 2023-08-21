@@ -164,6 +164,8 @@ function cs_issues_custom_cols($columns)
 	unset($columns['date']);
 
 	$columns['issue_date']   = __('Issue date', 'default');
+	$columns['issue_type']   = __('Issue type', 'default');
+	$columns['manufacturer'] = __('Manufacturer', 'default');
 	$columns['ticket']       = __('Ticket URL', 'default');
 	$columns['severity']     = __('Severity', 'default');
 	$columns['order_no']     = __('Order No', 'default');
@@ -182,9 +184,17 @@ function product_issue_custom_column_values($column, $post_id)
 
 	switch ($column) {
 
-			// in this example, a Product has custom fields called 'product_number' and 'product_name'
 		case 'issue_date':
 			echo get_post_meta($post_id, $column, true);
+			break;
+
+		case 'issue_type':
+			echo ucwords(str_replace('_', ' ', get_post_meta($post_id, $column, true)));
+			break;
+
+		case 'manufacturer':
+			echo get_post_meta($post_id, $column, true) ? '<b>'.get_post_meta($post_id, $column, true) . '</b><br>' : '-';
+			echo get_post_meta($post_id, 'manufacture_date', true) ? __('<b>MFG Date:</b> ', 'default') . get_post_meta($post_id, 'manufacture_date', true) . '<br>' : '-';
 			break;
 
 		case 'ticket':
@@ -261,7 +271,7 @@ function product_issue_custom_column_values($column, $post_id)
 			break;
 
 		case 'ref_amt':
-			echo get_post_meta($post_id, $column, true);
+			echo get_post_meta($post_id, $column, true) ? get_post_meta($post_id, $column, true) : '-';
 			break;
 
 		case 'status': ?>
