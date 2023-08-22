@@ -459,8 +459,8 @@ add_filter('views_edit-product_issue', function ($views) {
 	]));
 
 	// resolved/unresolved statuses
-	$views['unresolved'] = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=status&meta_value=pending') . '">' . __('Pending', 'default') . '<span class="count">(' . $pending_count . ')</span></a>';
-	$views['resolved']   = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=status&meta_value=resolved') . '">' . __('Resolved', 'default') . '<span class="count">(' . $resolved_count . ')</span></a>';
+	$views['unresolved'] = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=status&meta_value=pending') . '">' . __('Pending', 'default') . ' <span class="count">(' . $pending_count . ')</span></a>';
+	$views['resolved']   = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=status&meta_value=resolved') . '">' . __('Resolved', 'default') . ' <span class="count">(' . $resolved_count . ')</span></a>';
 
 	return $views;
 });
@@ -538,8 +538,8 @@ add_filter('views_edit-shipping_issue', function ($views) {
 	]));
 
 	// resolved/unresolved statuses
-	$views['unresolved'] = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=status&meta_value=pending') . '">' . __('Pending', 'default') . '<span class="count">(' . $pending_count . ')</span></a>';
-	$views['resolved']   = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=status&meta_value=resolved') . '">' . __('Resolved', 'default') . '<span class="count">(' . $resolved_count . ')</span></a>';
+	$views['unresolved'] = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=status&meta_value=pending') . '">' . __('Pending', 'default') . ' <span class="count">(' . $pending_count . ')</span></a>';
+	$views['resolved']   = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=status&meta_value=resolved') . '">' . __('Resolved', 'default') . ' <span class="count">(' . $resolved_count . ')</span></a>';
 
 	return $views;
 });
@@ -581,4 +581,34 @@ add_action('pre_get_posts', function ($query) {
 	}
 
 	return $query;
+});
+
+/**
+ * JS to add class 'current' to custom filters which are active
+ */
+add_action('admin_footer', function () {
+	global $pagenow, $typenow;
+
+	if ($pagenow === 'edit.php' && $typenow === 'product_issue' || $typenow === 'shipping_issue') { ?>
+
+		<script>
+			jQuery(document).ready(function($) {
+				<?php if (isset($_GET['meta_value']) && isset($_GET['meta_key']) && $_GET['meta_key'] === 'sku') : ?>
+
+					// if sku value == sku value in filter, add class 'current'
+					$('.subsubsub a[href*="meta_key=sku&meta_value=<?php echo $_GET['meta_value']; ?>"]').addClass('current');
+
+				<?php endif; ?>
+
+				<?php if (isset($_GET['meta_value']) && isset($_GET['meta_key']) && $_GET['meta_key'] === 'status' && $_GET['meta_value'] === 'pending') : ?>
+					$('.subsubsub a[href*="meta_key=status&meta_value=pending"]').addClass('current');
+				<?php endif; ?>
+
+				<?php if (isset($_GET['meta_value']) && isset($_GET['meta_key']) && $_GET['meta_key'] === 'status' && $_GET['meta_value'] === 'resolved') : ?>
+					$('.subsubsub a[href*="meta_key=status&meta_value=resolved"]').addClass('current');
+				<?php endif; ?>
+			});
+		</script>
+
+<?php }
 });
