@@ -11,3 +11,6 @@ include SBWCIT_PATH . 'functions/cpt-functions/cols_sorting.php';
 
 // Custom filters
 include SBWCIT_PATH . 'functions/cpt-functions/custom_filters.php';
+
+// Custom meta
+include SBWCIT_PATH . 'functions/cpt-functions/custom_meta.php';

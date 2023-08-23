@@ -1,7 +1,7 @@
 <?php
 
 // include gallery img function
-include SBWCIT_PATH . 'functions/gallery.php';
+include SBWCIT_PATH . 'functions/cpt-functions/gallery.php';
 
 // register pll strings
 if (function_exists('pll_register_string')) :
