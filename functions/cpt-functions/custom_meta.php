@@ -58,6 +58,8 @@ function sbwcit_meta_box_callback($post)
     $manufacture_date = get_post_meta($post_id, 'manufacture_date', true);
     $order_date       = get_post_meta($post_id, 'order_date', true);
 
+    echo $sku;
+
 ?>
 
     <!-- date -->
@@ -104,13 +106,103 @@ function sbwcit_meta_box_callback($post)
     <!-- product -->
     <p class="sbwcit_post_meta_cont">
         <label for="product"><?php function_exists('pll_e') ? pll_e('Product:*') : _e('Product:*') ?></label>
-        <input type="text" name="product" id="product" value="<?php echo $product ?>" required>
+
+        <?php
+        // if products post type exists, build select2 dropdown, else display text input for product title
+        if (post_type_exists('product')) :
+
+            // get products
+            $products = get_posts([
+                'post_type'      => 'product',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'post_status'    => 'any'
+            ]);
+
+            // init products array
+            $products_arr = [];
+
+            // loop through products
+            foreach ($products as $product) :
+
+                // get product title
+                $title = get_the_title($product);
+
+                // get product sku
+                $psku = get_post_meta($product, 'sku', true);
+
+                // add to array
+                $products_arr[$psku] = $title;
+
+            endforeach;
+
+            // sort array
+            asort($products_arr); ?>
+
+            <select name="product" id="product" required>
+
+                <option value=""><?php echo (function_exists('pll_e') ? pll_e('Please Select...') : _e('Please Select...')); ?></option>
+
+                <?php foreach ($products_arr as $psku => $title) : ?>
+                    <option <?php echo ($product == $title ? 'selected' : '') ?> value="<?php echo $title ?>" data-sku="<?php echo $psku; ?>"><?php echo $title ?></option>
+                <?php endforeach; ?>
+
+            </select>
+
+            <!-- select2 -->
+            <script>
+                $ = jQuery;
+
+                $(document).ready(function() {
+
+                    // init select2
+                    $('#product').select2({
+                        placeholder: "<?php echo (function_exists('pll_e') ? pll_e('Please Select...') : _e('Please Select...')); ?>",
+                        allowClear: true,
+                    });
+
+                    // on change during interaction only
+                    $('#product').on('select2:select', function() {
+
+                        // get sku
+                        var sku = $(this).find(':selected').data('sku');
+
+                        // set sku
+                        $('#sku').val(sku);
+                    });
+
+                    // on change
+                    // $('#product').on('change', function() {
+
+                    //     // get sku
+                    //     var sku = $(this).find(':selected').data('sku');
+
+                    //     // set sku
+                    //     $('#sku').val(sku);
+                    // });
+                });
+            </script>
+        <?php else : // default 
+        ?>
+
+            <input type="text" name="product" id="product" value="<?php echo $product ?>" required>
+
+        <?php endif; ?>
     </p>
 
     <!-- SKU -->
     <p class="sbwcit_post_meta_cont">
         <label for="sku"><?php function_exists('pll_e') ? pll_e('SKU:*') : _e('SKU:*') ?></label>
-        <input type="text" name="sku" id="sku" value="<?php echo $sku ?>" required>
+
+        <?php if (post_type_exists('product')) : ?>
+
+            <input type="text" name="sku" id="sku" value="<?php echo $sku; ?>" required readonly placeholder="<?php function_exists('pll_e') ? pll_e('Select product...') : _e('Select product...') ?>">
+
+        <?php else : ?>
+
+            <input type="text" name="sku" id="sku" value="<?php echo $sku; ?>" required>
+
+        <?php endif; ?>
     </p>
 
     <!-- comments -->
@@ -248,10 +340,10 @@ function sbwcit_meta_box_callback($post)
                 // remove required attr
                 $('#issue_type_other').removeAttr('required');
             }
-        } 
-        
+        }
+
         window.onload = function() {
-            
+
             // if issue type is other, show textarea
             checkIssueVal();
 
