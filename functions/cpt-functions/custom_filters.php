@@ -10,11 +10,12 @@ endif;
  */
 add_filter('views_edit-product_issue', function ($views) {
 
-    // get all products and build list of SKUs
+    // get all parent products and build list of SKUs
     $products = get_posts([
         'post_type'      => 'product',
         'posts_per_page' => -1,
-        'fields'         => 'ids'
+        'fields'         => 'ids',
+        'post_parent'    => 0
     ]);
 
     $skus = [];
