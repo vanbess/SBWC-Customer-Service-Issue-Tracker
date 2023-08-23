@@ -10,53 +10,36 @@ endif;
  */
 add_filter('views_edit-product_issue', function ($views) {
 
-    // get all parent products and build list of SKUs
-    $products = get_posts([
-        'post_type'      => 'product',
+    // get product issues and build list of SKUs
+    $p_issues = get_posts([
+        'post_type'      => 'product_issue',
         'posts_per_page' => -1,
         'fields'         => 'ids',
-        'post_parent'    => 0
+        'order'          => 'ASC',
+        'post_status'    => 'publish'
     ]);
 
-    $skus = [];
+    // if skus empty, bail
+    if (empty($p_issues)) return;
 
-    foreach ($products as $product) {
-        $skus[] = get_post_meta($product, '_sku', true);
+    // get parent skus
+    $parent_skus = [];
+
+    // loop through product issues and get parent skus
+    foreach ($p_issues as $issue) {
+
+        // if sku is empty or null, skip
+        if (empty(get_post_meta($issue, 'sku', true)) || is_null(get_post_meta($issue, 'sku', true))) continue;
+
+        // if sku not in parent skus, add to array
+        if (!in_array(explode('-', get_post_meta($issue, 'sku', true))[0], $parent_skus)) :
+            $parent_skus[] = explode('-', get_post_meta($issue, 'sku', true))[0];
+        endif;
     }
 
-    $skus = array_unique($skus);
-
-    // if $skus not empty, loop and add filter for each, else retrieve skus from product issues and add filter for each
-    if (!empty($skus)) {
-        foreach ($skus as $sku) {
-            $views[$sku] = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=sku&meta_value=' . $sku) . '">' . $sku . '</a>';
-        }
-    } else {
-        $skus = get_posts([
-            'post_type'      => 'product_issue',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-            'meta_key'       => 'sku',
-            'orderby'        => 'meta_value',
-            'order'          => 'ASC',
-            'post_status'    => 'publish'
-        ]);
-
-        foreach ($skus as $sku) {
-
-            // get sku count
-            $sku_count = count(get_posts([
-                'post_type'      => 'product_issue',
-                'posts_per_page' => -1,
-                'fields'         => 'ids',
-                'meta_key'       => 'sku',
-                'meta_value'     => get_post_meta($sku, 'sku', true),
-                'post_status'    => 'publish'
-            ]));
-
-            $views[get_post_meta($sku, 'sku', true)] = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=sku&meta_value=' . get_post_meta($sku, 'sku', true)) . '">' . get_post_meta($sku, 'sku', true) . ' <span class="count">(' . $sku_count . ')</span></a>';
-        }
-    }
+    foreach ($parent_skus as $parent_sku) :
+        $views[$parent_sku] = '<a href="' . admin_url('edit.php?post_type=product_issue&meta_key=sku&meta_value=' . $parent_sku . '">') . $parent_sku . '</a>';
+    endforeach;
 
     // get pending issues count
     $pending_count = count(get_posts([
@@ -90,52 +73,36 @@ add_filter('views_edit-product_issue', function ($views) {
  */
 add_filter('views_edit-shipping_issue', function ($views) {
 
-    // get all products and build list of SKUs
-    $products = get_posts([
-        'post_type'      => 'product',
+    // get shipping issues and build list of SKUs
+    $p_issues = get_posts([
+        'post_type'      => 'shipping_issue',
         'posts_per_page' => -1,
-        'fields'         => 'ids'
+        'fields'         => 'ids',
+        'order'          => 'ASC',
+        'post_status'    => 'publish'
     ]);
 
-    $skus = [];
+    // if skus empty, bail
+    if (empty($p_issues)) return;
 
-    foreach ($products as $product) {
-        $skus[] = get_post_meta($product, '_sku', true);
+    // get parent skus
+    $parent_skus = [];
+
+    // loop through product issues and get parent skus
+    foreach ($p_issues as $issue) {
+
+        // if sku is empty or null, skip
+        if (empty(get_post_meta($issue, 'sku', true)) || is_null(get_post_meta($issue, 'sku', true))) continue;
+
+        // if sku not in parent skus, add to array
+        if (!in_array(explode('-', get_post_meta($issue, 'sku', true))[0], $parent_skus)) :
+            $parent_skus[] = explode('-', get_post_meta($issue, 'sku', true))[0];
+        endif;
     }
 
-    $skus = array_unique($skus);
-
-    // if $skus not empty, loop and add filter for each, else retrieve skus from product issues and add filter for each
-    if (!empty($skus)) {
-        foreach ($skus as $sku) {
-            $views[$sku] = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=sku&meta_value=' . $sku) . '">' . $sku . '</a>';
-        }
-    } else {
-        $skus = get_posts([
-            'post_type'      => 'shipping_issue',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-            'meta_key'       => 'sku',
-            'orderby'        => 'meta_value',
-            'order'          => 'ASC',
-            'post_status'    => 'publish'
-        ]);
-
-        foreach ($skus as $sku) {
-
-            // get sku count
-            $sku_count = count(get_posts([
-                'post_type'      => 'shipping_issue',
-                'posts_per_page' => -1,
-                'fields'         => 'ids',
-                'meta_key'       => 'sku',
-                'meta_value'     => get_post_meta($sku, 'sku', true),
-                'post_status'    => 'publish'
-            ]));
-
-            $views[get_post_meta($sku, 'sku', true)] = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=sku&meta_value=' . get_post_meta($sku, 'sku', true)) . '">' . get_post_meta($sku, 'sku', true) . ' <span class="count">(' . $sku_count . ')</span></a>';
-        }
-    }
+    foreach ($parent_skus as $parent_sku) :
+        $views[$parent_sku] = '<a href="' . admin_url('edit.php?post_type=shipping_issue&meta_key=sku&meta_value=' . $parent_sku . '">') . $parent_sku . '</a>';
+    endforeach;
 
     // get pending issues count
     $pending_count = count(get_posts([
@@ -175,12 +142,19 @@ add_action('pre_get_posts', function ($query) {
 
     if ($pagenow === 'edit.php' && $typenow === 'product_issue' || $typenow === 'shipping_issue') {
 
-        // sort by sku
+        // sort by sku LIKE submitted value
         if (isset($_GET['meta_value']) && isset($_GET['meta_key']) && $_GET['meta_key'] === 'sku') {
-            $meta_key                        = 'sku';
-            $meta_value                      = sanitize_text_field($_GET['meta_value']);
-            $query->query_vars['meta_key']   = $meta_key;
-            $query->query_vars['meta_value'] = $meta_value;
+
+            $meta_query = array(
+                array(
+                    'key'     => 'sku',
+                    'value'   => sanitize_text_field($_GET['meta_value']),
+                    'compare' => 'LIKE',
+                ),
+            );
+    
+            $query->set('meta_query', $meta_query);
+
         }
 
         // sort by unresolved status
