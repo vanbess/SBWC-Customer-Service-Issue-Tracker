@@ -171,15 +171,6 @@ function sbwcit_meta_box_callback($post)
                         $('#sku').val(sku);
                     });
 
-                    // on change
-                    // $('#product').on('change', function() {
-
-                    //     // get sku
-                    //     var sku = $(this).find(':selected').data('sku');
-
-                    //     // set sku
-                    //     $('#sku').val(sku);
-                    // });
                 });
             </script>
         <?php else : // default 
