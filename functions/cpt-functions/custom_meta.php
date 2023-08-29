@@ -593,6 +593,7 @@ function sbwcit_meta_box_callback($post)
             left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 99;
         }
 
         div#sbwcit-order-info-modal {
@@ -604,6 +605,7 @@ function sbwcit_meta_box_callback($post)
             overflow-x: hidden;
             border-radius: 5px;
             padding: 20px;
+            z-index: 100;
         }
 
         span#sbwcit-order-info-modal-close {
