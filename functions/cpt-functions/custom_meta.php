@@ -3,6 +3,9 @@
 // include gallery img function
 include SBWCIT_PATH . 'functions/cpt-functions/gallery.php';
 
+// order fetch function
+include SBWCIT_PATH . 'functions/cpt-functions/fetch_order_date_ajax.php';
+
 // register pll strings
 if (function_exists('pll_register_string')) :
     pll_register_string('sbwcit_1', 'Issue date');
@@ -57,8 +60,8 @@ function sbwcit_meta_box_callback($post)
     $manufacturer     = get_post_meta($post_id, 'manufacturer', true);
     $manufacture_date = get_post_meta($post_id, 'manufacture_date', true);
     $order_date       = get_post_meta($post_id, 'order_date', true);
+    $order_data       = get_post_meta($post_id, 'order_data', true);
 
-    echo $sku;
 
 ?>
 
@@ -88,13 +91,80 @@ function sbwcit_meta_box_callback($post)
     <!-- original order number -->
     <p class="sbwcit_post_meta_cont">
         <label for="order_no"><?php function_exists('pll_e') ? pll_e('Original order number:*') : _e('Original order number:*') ?></label>
-        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required>
+        <input type="text" name="order_no" id="order_no" value="<?php echo $order_no ?>" required onblur="fetch_order_date()" data-key="ck_6c5cd21e42f272ab827c33e9252b9af3a1ed7a5b" data-secret="cs_9ed0400dc2b161a3f7076ed2c1d2454eac0c13cb">
     </p>
+
+    <!-- function fetch_order_date -->
+    <script>
+        function fetch_order_date() {
+
+            $ = jQuery;
+
+            // get order id
+            var order_no = $('#order_no').val();
+
+            // get api key
+            var api_key = $('#order_no').data('key');
+
+            // get api secret
+            var api_secret = $('#order_no').data('secret');
+
+            // if order id empty, return
+            if (!order_no) return;
+
+            // if api key empty, return
+            if (!api_key) return;
+
+            // if api secret empty, return
+            if (!api_secret) return;
+
+            // ajax request
+            $.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                data: {
+                    action: 'sbwcit_fetch_order_date',
+                    order_no: order_no,
+                    api_key: api_key,
+                    api_secret: api_secret,
+                    issue_id: <?php echo $post_id; ?>,
+                },
+                success: function(response) {
+
+                    // if success
+                    if (response.success) {
+
+                        // // log
+                        // console.log(response);
+
+                        // order data
+                        let order_data = response.data;
+
+                        // extract order date
+                        let order_date = order_data.date_created;
+
+                        // convert to compatible date format for order date input and set value
+                        $('#order_date').val(order_date.substring(0, 10));
+
+                        // base64 encode order data and add to hidden input
+                        $('#order_data').val(JSON.stringify(order_data));
+
+                        // if error
+                    } else {
+                        // log
+                        console.log(response);
+                    }
+
+
+                }
+            });
+        }
+    </script>
 
     <!-- order date -->
     <p class="sbwcit_post_meta_cont">
         <label for="order_date"><?php function_exists('pll_e') ? pll_e('Order date:') : _e('Order date:') ?></label>
-        <input type="date" name="order_date" id="order_date" value="<?php echo $order_date ?>">
+        <input type="date" name="order_date" id="order_date" value="<?php echo $order_date ?>" readonly placeholder="<?php function_exists('pll_e') ? pll_e('enter original order number') : _e('enter original order number') ?>">
     </p>
 
     <!-- replacement order number -->
@@ -161,8 +231,25 @@ function sbwcit_meta_box_callback($post)
                         allowClear: true,
                     });
 
-                    // on change during interaction only
-                    $('#product').on('select2:select', function() {
+                    // loop through product select options
+                    $('#product option').each(function() {
+
+                        // get sku
+                        var sku = $(this).data('sku');
+
+                        // if sku matches
+                        if (sku == '<?php echo $sku; ?>') {
+
+                            // select option
+                            $(this).attr('selected', true);
+
+                            // trigger change
+                            $('#product').trigger('change');
+                        }
+                    });
+
+                    // set #sku value on #product change
+                    $('#product').on('change', function() {
 
                         // get sku
                         var sku = $(this).find(':selected').data('sku');
@@ -258,6 +345,9 @@ function sbwcit_meta_box_callback($post)
         </select>
     </p>
 
+    <!-- order data hidden input -->
+    <input type="hidden" name="order_data" id="order_data" value="<?php echo esc_html($order_data); ?>">
+
     <!-- nonce -->
     <?php wp_nonce_field('sbwcit_meta_box', 'sbwcit_meta_box_nonce'); ?>
 
@@ -269,6 +359,194 @@ function sbwcit_meta_box_callback($post)
         sbwcit_gallery($post_id);
         ?>
     </p>
+
+
+    <!-- order info modal overlay -->
+    <div id="sbwcit-order-info-modal-overlay" style="display: none;"></div>
+
+    <!-- order info modal actual -->
+    <div id="sbwcit-order-info-modal" style="display: none;">
+
+        <!-- heading -->
+        <h4><?php _e('Order Info', 'default'); ?></h4>
+
+        <!-- dismiss/close -->
+        <span id="sbwcit-order-info-modal-close">&times;</span>
+
+        <!-- modal cont -->
+        <div id="sbwcit-order-info-modal-cont">
+
+            <?php
+
+            // decode order info
+            $order_data = json_decode($order_data);
+
+            // get order id
+            $order_id = $order_data->id;
+
+            // get billing info
+            $billing = $order_data->billing;
+
+            // get line item info
+            $line_items = $order_data->line_items;
+
+            // get order date
+            $order_date = $order_data->date_created;
+
+            // get order status
+            $order_status = $order_data->status;
+
+            // get order currency
+            $order_currency = $order_data->currency;
+
+            // get order total
+            $order_total = $order_data->total;
+
+            // get order discount total
+            $order_discount_total = $order_data->discount_total;
+
+            // render order info table with headings to the left and data to the right
+            ?>
+
+            <table id="sbwcit-order-data-table" class="wp-list-table widefat fixed striped table-view-list">
+                <!-- order id -->
+                <tr>
+                    <th><?php _e('Original Order ID:', 'default'); ?></th>
+                    <td><?php echo $order_id; ?></td>
+                </tr>
+
+                <!-- order date -->
+                <tr>
+                    <th><?php _e('Order Date:', 'default'); ?></th>
+                    <td><?php echo $order_date; ?></td>
+                </tr>
+
+                <!-- order status -->
+                <tr>
+                    <th><?php _e('Status:', 'default'); ?></th>
+                    <td><?php echo ucwords($order_status); ?></td>
+                </tr>
+
+                <!-- order total -->
+                <tr>
+                    <th><?php _e('Total:', 'default'); ?></th>
+                    <td><?php echo $order_currency . $order_total; ?></td>
+                </tr>
+
+                <!-- discount -->
+                <tr>
+                    <th><?php _e('Discount:', 'default'); ?></th>
+                    <td><?php echo $order_currency . $order_discount_total; ?></td>
+                </tr>
+
+                <!-- line items -->
+                <tr>
+                    <th><?php _e('Line Items:', 'default'); ?></th>
+                    <td>
+                        <table id="sbwcit-line-items-info">
+                            <?php foreach ($line_items as $item) : ?>
+                                <tr>
+                                    <th style="font-weight: 600;"><?php _e('Product:', 'default'); ?></th>
+                                    <td><?php echo $item->name; ?></td>
+                                </tr>
+                                <tr>
+                                    <th style="font-weight: 600;"><?php _e('SKU:', 'default'); ?></th>
+                                    <td><?php echo $item->sku; ?></td>
+                                </tr>
+                                <tr>
+                                    <th style="font-weight: 600;"><?php _e('QTY:', 'default'); ?></th>
+                                    <td><?php echo $item->quantity; ?></td>
+                                </tr>
+
+                            <?php endforeach; ?>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- shipping info -->
+                <tr>
+                    <th><?php _e('Shipping/Customer Info:', 'default'); ?></th>
+                    <td>
+                        <table id="sbwcit-shipping-info">
+
+                            <!-- first name -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('First name:', 'default'); ?></th>
+                                <td><?php echo $billing->first_name; ?></td>
+                            </tr>
+
+                            <!-- last name -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Last name:', 'default'); ?></th>
+                                <td><?php echo $billing->last_name; ?></td>
+                            </tr>
+
+                            <!-- address 1 -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Address line 1:', 'default'); ?></th>
+                                <td><?php echo $billing->address_1; ?></td>
+                            </tr>
+
+                            <!-- address 2 -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Address line 2:', 'default'); ?></th>
+                                <td><?php echo $billing->address_2 ? $billing->address_2 : '-'; ?></td>
+                            </tr>
+
+                            <!-- city -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('City:', 'default'); ?></th>
+                                <td><?php echo $billing->city; ?></td>
+                            </tr>
+
+                            <!-- state -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('State:', 'default'); ?></th>
+                                <td><?php echo $billing->state ? $billing->state : '-'; ?></td>
+                            </tr>
+
+                            <!-- postcode -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Post code:', 'default'); ?></th>
+                                <td><?php echo $billing->postcode; ?></td>
+                            </tr>
+
+                            <!-- country -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Country:', 'default'); ?></th>
+                                <td><?php echo $billing->country; ?></td>
+                            </tr>
+
+                            <!-- phone -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Phone:', 'default'); ?></th>
+                                <td>
+                                    <!-- phone link -->
+                                    <a href="tel:<?php echo $billing->phone; ?>"><?php echo $billing->phone; ?></a>
+                                </td>
+                            </tr>
+
+                            <!-- email -->
+                            <tr>
+                                <th style="font-weight: 600;"><?php _e('Email:', 'default'); ?></th>
+                                <td>
+                                    <!-- mailto link -->
+                                    <a href="mailto:<?php echo $billing->email; ?>"><?php echo $billing->email; ?></a>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+
+
+        </div>
+
+
+
+    </div>
 
     <!-- css -->
     <style>
@@ -306,6 +584,68 @@ function sbwcit_meta_box_callback($post)
 
         .sbwcit-add-gall-img.col-20 img {
             border: 2px solid #ddd;
+        }
+
+        div#sbwcit-order-info-modal-overlay {
+            background: #00000094;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        div#sbwcit-order-info-modal {
+            position: absolute;
+            top: -19vh;
+            left: 18vw;
+            background: white;
+            width: 50vw;
+            overflow-x: hidden;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        span#sbwcit-order-info-modal-close {
+            background: red;
+            color: white;
+            width: 25px;
+            height: 25px;
+            display: block;
+            text-align: center;
+            line-height: 1.8;
+            border-radius: 50%;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            cursor: pointer;
+        }
+
+        div#sbwcit-order-info-modal>h4 {
+            margin-top: 0;
+            font-size: x-large;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        #sbwcit-order-data-table>tbody>tr>th {
+            width: 30%;
+            font-weight: 500;
+        }
+
+        #sbwcit-order-data-table>tbody>tr>td {
+            width: 70%;
+        }
+
+        #sbwcit-order-data-table>tbody>tr:nth-child(6)>th,
+        #sbwcit-order-data-table>tbody>tr:nth-child(7)>th {
+            vertical-align: top;
+            padding-top: 19px;
+        }
+
+        table#sbwcit-line-items-info th,
+        table#sbwcit-shipping-info th {
+            padding-left: 0;
         }
     </style>
 
@@ -354,7 +694,46 @@ function sbwcit_meta_box_callback($post)
             // add file upload support to form #post
             $('#post').attr('enctype', 'multipart/form-data');
 
+            // get order data
+            var order_data = JSON.parse($('#order_data').val());
+
+            // if order data exists
+            if (order_data) {
+                $('#sbwcit_meta_box > div.postbox-header > h2').append('<button class="button button-primary" onclick="showOrderInfo(event)">' + '<?php _e('View Order Info') ?>' + '</button>');
+            }
+
         }
+
+        // show order modal
+        function showOrderInfo(event) {
+
+            // stop default
+            event.preventDefault();
+            event.stopPropagation();
+
+            // show modal and modal overlay
+            $('#sbwcit-order-info-modal').show();
+            $('#sbwcit-order-info-modal-overlay').show();
+
+        }
+
+        // modal close on click
+        $(document).on('click', '#sbwcit-order-info-modal-close', function() {
+
+            // hide modal and modal overlay
+            $('#sbwcit-order-info-modal').hide();
+            $('#sbwcit-order-info-modal-overlay').hide();
+
+        });
+
+        // set selected product
+        $('#product').on('select2:select', function() {
+
+            // get sku
+            var sku = $(this).find(':selected').data('sku');
+
+            // if sku data attribute matches
+        });
     </script>
 
 <?php }
@@ -508,5 +887,10 @@ function sbwcit_save_post_meta($post_id)
 
         // update post meta
         update_post_meta($post_id, 'issue_gallery', $images);
+    }
+
+    // save order data
+    if (isset($_POST['order_data'])) {
+        update_post_meta($post_id, 'order_data', sanitize_text_field($_POST['order_data']));
     }
 }

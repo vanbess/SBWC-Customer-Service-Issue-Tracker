@@ -105,6 +105,32 @@ function sbwcit_import_products_cron_action()
         update_post_meta($product_id, 'sku', $product[0]);
 
     endforeach;
+
+    // add log entry for reference
+    sbwcit_add_log_entry('Products imported from CSV at ' . date('Y-m-d H:i:s') . '.');
+
+}
+
+/**
+ * Function to add log entry
+ */
+function sbwcit_add_log_entry($message){
+    
+        // get log entries
+        $log_entries = get_option('sbwcit_log_entries');
+
+        // if log entries too big, remove oldest entry
+        if(count($log_entries) > 30) array_shift($log_entries);
+    
+        // if no log entries, create empty array
+        if(!$log_entries) $log_entries = [];
+    
+        // add new entry to array
+        $log_entries[] = $message;
+    
+        // update option
+        update_option('sbwcit_log_entries', $log_entries);
+    
 }
 
 // Do initial import of product on plugin activation
