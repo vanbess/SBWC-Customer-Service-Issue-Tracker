@@ -1,5 +1,5 @@
-## SBWC Order Issue Tracker
+## PLUGIN: WooCommerce Order Issue Tracker
 
 Order and shipping issue tracker for WooCommerce stores.
 
-You'll probably need to adapt it to your specific use case, but the foundation provided is solid.
+NOTE: this is a bespoke plugin created for a client, so will likely require mods to work for your use case.
